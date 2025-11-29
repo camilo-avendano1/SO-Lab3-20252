@@ -17,65 +17,57 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  *
  */
-
 #include <stdio.h>
-#include <math.h>
 #include <stdlib.h>
+#include <sys/time.h>
 
-
-double CalcPi(int n);
-
-int main(int argc, char **argv)
-{
-    int n = 2000000000;
-    const double fPi25DT = 3.141592653589793238462643;
-    double fPi;
-    double fTimeStart, fTimeEnd;
-    
-#ifdef READ_INPUT  
-    printf("Enter the number of intervals: ");
-    scanf("%d",&n);
-#endif
-
-    if (n <= 0 || n > 2147483647 ) 
-    {
-        printf("\ngiven value has to be between 0 and 2147483647\n");
-        return 1;
-    }
-    
-    // get initial time 
-
-    /* the calculation is done here*/
-    fPi = CalcPi(n);
-
-    //get final fime
-    
-    printf("\npi is approximately = %.20f \nError               = %.20f\n",
-           fPi, fabs(fPi - fPi25DT));
-    
-    // report time
-
-    return 0;
+// Función f(x) = 4/(1+x^2)
+double f(double x) {
+    return (4.0 / (1.0 + x * x));
 }
 
-
-double f(double a)
-{
-    return (4.0 / (1.0 + a*a));
-}
-
-
-double CalcPi(int n)
-{
-    const double fH   = 1.0 / (double) n;
+// Función para calcular π
+double CalcPi(int n) {
+    const double fH = 1.0 / (double)n;
     double fSum = 0.0;
     double fX;
-    int i;
-
-    for (i = 0; i < n; i += 1)
-    {
+    
+    for (int i = 0; i < n; i++) {
         fX = fH * ((double)i + 0.5);
         fSum += f(fX);
     }
+    
     return fH * fSum;
+}
+
+// Función para obtener el tiempo actual
+double GetTime() {
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return tv.tv_sec + tv.tv_usec * 1e-6;
+}
+
+int main(int argc, char* argv[]) {
+    if (argc != 2) {
+        printf("Uso: %s <numero_intervalos>\n", argv[0]);
+        return 1;
+    }
+    
+    int n = atoi(argv[1]);
+    
+    if (n <= 0) {
+        printf("Error: El número de intervalos debe ser positivo\n");
+        return 1;
+    }
+    
+    printf("Calculando π con n=%d (versión serial)...\n", n);
+    
+    double start_time = GetTime();
+    double pi = CalcPi(n);
+    double end_time = GetTime();
+    
+    printf("π ≈ %.15f\n", pi);
+    printf("Tiempo de ejecución: %.6f segundos\n", end_time - start_time);
+    
+    return 0;
 }
